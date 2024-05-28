@@ -1,4 +1,5 @@
 #include <Novice.h>
+#include "MT3.h"
 
 const char kWindowTitle[] = "GC1B_04_ゴ_タクウ";
 const int kWindowWidth = 1280;
