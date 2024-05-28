@@ -111,6 +111,5 @@
     <ClInclude Include="C:\KamataEngine\DirectXGame\base\StringUtility.h">
       <Filter>KamataEngine\Include</Filter>
     </ClInclude>
-    <ClInclude Include="MT3.h" />
   </ItemGroup>
 </Project>

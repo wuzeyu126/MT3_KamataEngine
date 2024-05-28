@@ -346,4 +346,4 @@ MigrationBackup/
 NoviceResources/
 
 DirectXGame/DirectXGame.exe
-DirectXGame/imgui.ini
+#DirectXGame/imgui.ini
