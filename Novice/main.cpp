@@ -7,13 +7,18 @@ const int kWindowWidth = 1280;
 const int kWindowHeight = 720;
 
 
-bool IsSphereCollision(const Sphere& sphere1, const Sphere& sphere2) {
-	float distance = Length(Subtract(sphere1.center, sphere2.center));
-	if (distance > sphere1.radius + sphere2.radius) {
-		return false;
-	}
-	return true;
-}
+//typedef struct {
+//	Vector3 normal;//法线
+//	float distance;//距离
+//}Plane;
+
+/// <summary>
+/// 冲突判定 球和平面
+/// </summary>
+/// <param name="sphere">球</param>
+/// <param name="plane">平面</param>
+/// <returns></returns>
+
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -21,7 +26,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
-	
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -32,13 +36,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate{ 0.26f,0.0f,0.0f };
 	Vector3 cameraTranslate{ 0.0f,1.9f ,-6.49f };
 
+	Sphere sphere{ {0.0f,0.0f,0.0f},0.5f };
+	Plane plane{ {0.0f,1.0f,0.0f},1.0f };
 
-	Sphere sphere[2];
-	sphere[0].center = { 0.0f,0.0f,0.0f };
-	sphere[0].radius = 0.5f;
-
-	sphere[1].center = { 1.0f,0.0f,1.0f };
-	sphere[1].radius = 0.2f;
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -69,10 +69,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("sphere[0] Position", &sphere[0].center.x, 0.01f);
-		ImGui::DragFloat("sphere[0] radius", &sphere[0].radius, 0.01f);
-		ImGui::DragFloat3("sphere[1] Position", &sphere[1].center.x, 0.01f);
-		ImGui::DragFloat("sphere[1] radius", &sphere[1].radius, 0.01f);
+		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("PlaneNormal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("PlaneDistance", &plane.distance, 0.01f);
 		ImGui::End();
 
 #endif 
@@ -86,15 +86,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
 
-
-		if (IsSphereCollision(sphere[0], sphere[1])) {
-			DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix, RED);
+		if (IsCollision(sphere, plane)) {
+			DrawSphere(sphere, worldViewProjectionMatrix, viewPortMatrix, RED);
 		}
 		else {
-			DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+			DrawSphere(sphere, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		}
 
-		DrawSphere(sphere[1], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawPlane(plane, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+
+
 
 		///
 		/// ↑描画処理ここまで
