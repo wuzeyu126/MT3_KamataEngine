@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <cmath>
 #include <assert.h>
 #include <Vector2.h>
@@ -1082,6 +1082,20 @@ void MouseCameraDrawIcon(float windowWidth, float windowHeight, bool showHelpTex
 		// Head
 		Novice::DrawEllipse((int)currentMousePos.x + 2, (int)currentMousePos.y + 1, int(headSize.x), int(headSize.y), 0, WHITE, kFillModeSolid);
 		Novice::DrawEllipse((int)currentMousePos.x + 2, (int)currentMousePos.y + 1, int(headSize.x + 1), int(headSize.y + 1), 0, BLACK, kFillModeWireFrame);
+	}
+}
+
+void CorrectAABB2(AABB& aabb) {
+	if (aabb.max.x < aabb.min.x) {
+		std::swap(aabb.max.x, aabb.min.x);
+	}
+
+	if (aabb.max.y < aabb.min.y) {
+		std::swap(aabb.max.y, aabb.min.y);
+	}
+
+	if (aabb.max.z < aabb.min.z) {
+		std::swap(aabb.max.z, aabb.min.z);
 	}
 }
 #pragma endregion

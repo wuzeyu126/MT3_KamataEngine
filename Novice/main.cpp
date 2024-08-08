@@ -7,6 +7,7 @@ const int kWindowWidth = 1280;
 const int kWindowHeight = 720;
 
 
+// Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
@@ -23,8 +24,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	AABB aabb1{ {-0.5f,-0.5f,-0.5f},{0.0f,0.0f,0.0f} };
-
-	AABB aabb2{ {0.2f,0.2f,0.2f},{1.0f,1.0f,1.0f} };
+	Sphere sphere{ {0.5f,0.5f,0.5f},0.5f };
 
 
 
@@ -41,18 +41,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
-		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
-		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
-
-		CorrectAABB(aabb1);
-		CorrectAABB(aabb2);
-
-
-
 #ifdef _DEBUG
 
 		MouseCamera(&cameraTranslate, &cameraRotate, keys);
@@ -66,13 +54,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("AABB1 max", &aabb1.max.x, 0.01f);
 		ImGui::DragFloat3("AABB1 min", &aabb1.min.x, 0.01f);
 
-		ImGui::DragFloat3("AABB2 max", &aabb2.max.x, 0.01f);
-		ImGui::DragFloat3("AABB2 min", &aabb2.min.x, 0.01f);
+		ImGui::DragFloat3("Sphere center", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("Sphere radius", &sphere.radius, 0.01f);
+
 
 
 		ImGui::End();
 
 #endif 
+
+		CorrectAABB2(aabb1);
+		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -82,13 +80,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		if (IsCollision(aabb1, aabb2)) {
+
+
+		DrawSphere(sphere, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+
+		if (IsCollision(aabb1, sphere)) {
 			DrawAABB(aabb1, worldViewProjectionMatrix, viewPortMatrix, RED);
 		}
 		else {
 			DrawAABB(aabb1, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		}
-		DrawAABB(aabb2, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 
 
 
