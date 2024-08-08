@@ -7,6 +7,13 @@ const int kWindowWidth = 1280;
 const int kWindowHeight = 720;
 
 
+bool IsSphereCollision(const Sphere& sphere1, const Sphere& sphere2) {
+	float distance = Length(Subtract(sphere1.center, sphere2.center));
+	if (distance > sphere1.radius + sphere2.radius) {
+		return false;
+	}
+	return true;
+}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -25,9 +32,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate{ 0.26f,0.0f,0.0f };
 	Vector3 cameraTranslate{ 0.0f,1.9f ,-6.49f };
 
-	Segment segment{ {-2.0f, -1.0f,0.0f},{3.0f,2.0f,2.0f} };
-	Vector3 point{ -1.5f,0.6f,0.6f };
 
+	Sphere sphere[2];
+	sphere[0].center = { 0.0f,0.0f,0.0f };
+	sphere[0].radius = 0.5f;
+
+	sphere[1].center = { 1.0f,0.0f,1.0f };
+	sphere[1].radius = 0.2f;
 
 
 	// ウィンドウの×ボタンが押されるまでループ
@@ -52,21 +63,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
-		Vector3 closestPoint = ClosestPoint(point, segment);
 
-		Sphere pointSphere{ point,0.01f };
-		Sphere closestPointSphere{ closestPoint,0.01f };
-
-		Vector3 start = Transform(Transform(segment.origin, worldViewProjectionMatrix), viewPortMatrix);
-		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewPortMatrix);
 
 #ifdef _DEBUG
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("closestPoint", &closestPoint.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::DragFloat3("sphere[0] Position", &sphere[0].center.x, 0.01f);
+		ImGui::DragFloat("sphere[0] radius", &sphere[0].radius, 0.01f);
+		ImGui::DragFloat3("sphere[1] Position", &sphere[1].center.x, 0.01f);
+		ImGui::DragFloat("sphere[1] radius", &sphere[1].radius, 0.01f);
 		ImGui::End();
 
 #endif 
@@ -77,15 +83,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-		DrawSphere(pointSphere, worldViewProjectionMatrix, viewPortMatrix, RED);
-		DrawSphere(closestPointSphere, worldViewProjectionMatrix, viewPortMatrix, BLACK);
-#ifdef _DEBUG
 
 
-#endif 
+		if (IsSphereCollision(sphere[0], sphere[1])) {
+			DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix, RED);
+		}
+		else {
+			DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		}
 
+		DrawSphere(sphere[1], worldViewProjectionMatrix, viewPortMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
