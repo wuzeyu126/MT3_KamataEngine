@@ -7,7 +7,6 @@ const int kWindowWidth = 1280;
 const int kWindowHeight = 720;
 
 
-// Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
@@ -22,13 +21,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate{ 0.26f,0.0f,0.0f };
 	Vector3 cameraTranslate{ 0.0f,1.9f,-6.49f };
 
-	Segment segment{ {0.0f, -0.0f,-1.0f},{0.0f,0.0f,1.0f} };
-	Triangle triangle;
-	triangle.vertices[0] = { -1.0f, 0.0f, 0.0f };
-	triangle.vertices[1] = { 1.0f, 0.0f, 0.0f };
-	triangle.vertices[2] = { 0.0f, 1.0f, 0.0f };
 
+	AABB aabb1{ {-0.5f,-0.5f,-0.5f},{0.0f,0.0f,0.0f} };
 
+	AABB aabb2{ {0.2f,0.2f,0.2f},{1.0f,1.0f,1.0f} };
 
 
 
@@ -52,23 +48,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
+		CorrectAABB(aabb1);
+		CorrectAABB(aabb2);
 
-		Vector3 start = Transform(Transform(segment.origin, worldViewProjectionMatrix), viewPortMatrix);
-		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewPortMatrix);
 
 
 #ifdef _DEBUG
 
 		MouseCamera(&cameraTranslate, &cameraRotate, keys);
 
-		MouseCameraDrawIcon(1280, 720, true);
+		//MouseCameraDrawIcon(1280, 720, true);
 
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
 
+		ImGui::DragFloat3("AABB1 max", &aabb1.max.x, 0.01f);
+		ImGui::DragFloat3("AABB1 min", &aabb1.min.x, 0.01f);
 
-		ImGui::DragFloat3("SegmentTranslate", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("AABB2 max", &aabb2.max.x, 0.01f);
+		ImGui::DragFloat3("AABB2 min", &aabb2.min.x, 0.01f);
 
 
 		ImGui::End();
@@ -83,15 +82,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-
-		if (IsCollision(triangle, segment)) {
-			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);
+		if (IsCollision(aabb1, aabb2)) {
+			DrawAABB(aabb1, worldViewProjectionMatrix, viewPortMatrix, RED);
 		}
 		else {
-			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+			DrawAABB(aabb1, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		}
-
-		DrawTriangle(triangle, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawAABB(aabb2, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 
 
 
