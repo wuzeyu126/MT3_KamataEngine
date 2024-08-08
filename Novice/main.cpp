@@ -7,8 +7,6 @@ const int kWindowWidth = 1280;
 const int kWindowHeight = 720;
 
 
-
-
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -24,8 +22,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate{ 0.26f,0.0f,0.0f };
 	Vector3 cameraTranslate{ 0.0f,1.9f,-6.49f };
 
-	Segment segment{ {-2.0f, -1.0f,0.0f},{3.0f,2.0f,2.0f} };
-	Plane plane{ {0.0f,1.0f,0.0f},1.0f };
+	Segment segment{ {0.0f, -0.0f,-1.0f},{0.0f,0.0f,1.0f} };
+	Triangle triangle;
+	triangle.vertices[0] = { -1.0f, 0.0f, 0.0f };
+	triangle.vertices[1] = { 1.0f, 0.0f, 0.0f };
+	triangle.vertices[2] = { 0.0f, 1.0f, 0.0f };
 
 
 
@@ -65,8 +66,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat("PlaneTranslate", &plane.distance, 0.01f);
-		ImGui::DragFloat3("PlaneRotate", &plane.normal.x, 0.01f);
+
 
 		ImGui::DragFloat3("SegmentTranslate", &segment.origin.x, 0.01f);
 
@@ -84,14 +84,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
 
-		if (IsCollision(segment, plane)) {
+		if (IsCollision(triangle, segment)) {
 			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);
 		}
 		else {
 			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 		}
 
-		DrawPlane(plane, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawTriangle(triangle, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 
 
 
